@@ -1,0 +1,143 @@
+# ==================================================
+# ENVIRONMENT VARIABLES
+# ==================================================
+.env
+.env.*
+!.env.example
+
+# ==================================================
+# PYTHON (BACKEND + RPA)
+# ==================================================
+
+# Byte-compiled / cache
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+
+# Virtual environments
+backend/.venv/
+backend/venv/
+rpa/.venv/
+rpa/venv/
+
+# Packaging / build
+backend/build/
+backend/dist/
+backend/*.egg-info/
+backend/.eggs/
+
+rpa/build/
+rpa/dist/
+rpa/*.egg-info/
+rpa/.eggs/
+
+# Test / coverage
+backend/.coverage
+backend/coverage.xml
+backend/htmlcov/
+backend/.pytest_cache/
+backend/.mypy_cache/
+backend/.ruff_cache/
+
+rpa/.coverage
+rpa/.pytest_cache/
+
+# Logs
+backend/*.log
+rpa/*.log
+
+# Jupyter
+**/.ipynb_checkpoints/
+
+# Alembic cache
+backend/migrations/versions/*.pyc
+
+# SQLite / local DB
+backend/*.db
+backend/*.sqlite3
+rpa/*.db
+rpa/*.sqlite3
+
+# ==================================================
+# FRONTEND (REACT + VITE)
+# ==================================================
+
+# Dependencies
+frontend/node_modules/
+
+# Build output
+frontend/dist/
+frontend/.vite/
+
+# Logs
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+
+# Cache
+frontend/.eslintcache
+frontend/.parcel-cache/
+
+# TypeScript build info
+frontend/*.tsbuildinfo
+
+# ==================================================
+# PLAYWRIGHT / RPA ARTIFACTS
+# ==================================================
+rpa/playwright-report/
+rpa/test-results/
+rpa/screenshots/
+rpa/videos/
+rpa/.trace/
+rpa/.cache/
+rpa/ms-playwright/
+
+# ==================================================
+# DOCKER
+# ==================================================
+
+# Local override files
+docker-compose.override.yml
+
+# Persistent local volumes (if mapped)
+postgres_data/
+redis_data/
+
+# ==================================================
+# IDE / EDITORS
+# ==================================================
+.vscode/
+.idea/
+
+# Vim
+*.swp
+*.swo
+
+# ==================================================
+# OS FILES
+# ==================================================
+.DS_Store
+Thumbs.db
+
+# ==================================================
+# TEMP FILES
+# ==================================================
+tmp/
+temp/
+*.tmp
+
+# ==================================================
+# SECURITY / SECRETS
+# ==================================================
+*.pem
+*.key
+*.crt
+*.p12
+
+# ==================================================
+# GENERATED REPORTS / ARTIFACTS
+# ==================================================
+reports/
+artifacts/
+coverage/
