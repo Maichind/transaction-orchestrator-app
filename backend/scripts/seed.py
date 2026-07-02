@@ -6,11 +6,11 @@ Usage:
     # or via Makefile:
     make seed
 """
+from __future__ import annotations
 import uuid
 import random
 import asyncio
 from decimal import Decimal
-from __future__ import annotations
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.infrastructure.database.engine import engine
 from app.infrastructure.database.models.base import Base

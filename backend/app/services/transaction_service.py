@@ -1,16 +1,16 @@
 """
 TransactionService — application layer orchestrator.
- 
+
 Responsibilities:
 - Business rules (idempotency check, validation)
 - Coordination between repository, cache, worker, and event publisher
 - Never does I/O directly (delegates to infrastructure)
 - Never knows about HTTP (no Request/Response imports)
 """
-import uuid
-from aioredis import Redis
-from decimal import Decimal
 from __future__ import annotations
+import uuid
+from decimal import Decimal
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.constants import TransactionStatus, TransactionType
 from app.core.exceptions import NotFoundError, TaskEnqueueError

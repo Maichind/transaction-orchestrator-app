@@ -6,10 +6,10 @@ Why structlog over plain logging?
 - JSON output in production feeds directly into log aggregators (Datadog, Loki)
 - Dev mode renders pretty colored output with no config change from callers
 """
+from __future__ import annotations
 import sys
 import logging
 import structlog
-from __future__ import annotations
 
 
 def configure_logging(log_level: str = "INFO", json_logs: bool = False) -> None:

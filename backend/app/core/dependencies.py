@@ -5,9 +5,9 @@ All `Depends(...)` callables live here. This prevents the same session/redis
 factory from being duplicated across route files, and makes swapping
 implementations in tests trivial (just override the dependency).
 """
+from __future__ import annotations
 from fastapi import Depends
 from typing import Annotated
-from __future__ import annotations
 from collections.abc import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import get_settings, Settings
@@ -44,7 +44,7 @@ DbSession = Annotated[AsyncSession, Depends(get_db)]
 
 # ── Redis ──────────────────────────────────────────────────────────────────────
 async def get_redis():
-    """Yield an aioredis client from the shared connection pool."""
+    """Yield an redis client from the shared connection pool."""
     return await get_redis_connection()
 
 

@@ -1,19 +1,18 @@
-version: "3.9"
-
-# ── Shared environment ────────────────────────────────────────────────────────
+# ── Shared backend environment ─────────────────────────────────────────────────
 x-backend-env: &backend-env
   DATABASE_URL: "postgresql+asyncpg://postgres:postgres@postgres:5432/transactions_db"
   REDIS_URL: "redis://redis:6379/0"
   CELERY_BROKER_URL: "redis://redis:6379/1"
   CELERY_RESULT_BACKEND: "redis://redis:6379/2"
   OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
+  OPENAI_ORG_ID: "${OPENAI_ORG_ID:-}"
   LOG_LEVEL: "${LOG_LEVEL:-INFO}"
   JSON_LOGS: "true"
   DEBUG: "false"
 
 services:
 
-  # ── PostgreSQL ──────────────────────────────────────────────────────────────
+  # ── PostgreSQL ───────────────────────────────────────────────────────────────
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
@@ -31,7 +30,7 @@ services:
       timeout: 5s
       retries: 10
 
-  # ── Redis ───────────────────────────────────────────────────────────────────
+  # ── Redis ────────────────────────────────────────────────────────────────────
   redis:
     image: redis:7-alpine
     restart: unless-stopped
@@ -46,7 +45,7 @@ services:
       timeout: 3s
       retries: 10
 
-  # ── FastAPI Backend ─────────────────────────────────────────────────────────
+  # ── FastAPI Backend ──────────────────────────────────────────────────────────
   api:
     build:
       context: ./backend
@@ -62,17 +61,18 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - ./backend:/app   # hot-reload in dev (remove in prod)
+      - ./backend:/app
     command: >
-      sh -c "alembic upgrade head && 
+      sh -c "alembic upgrade head &&
              uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\" || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 15s
 
-  # ── Celery Worker ───────────────────────────────────────────────────────────
+  # ── Celery Worker ────────────────────────────────────────────────────────────
   worker:
     build:
       context: ./backend
@@ -85,15 +85,15 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    volumes:
+      - ./backend:/app
     command: >
       celery -A app.workers.celery_app.celery_app worker
       --loglevel=info
       --concurrency=2
       --queues=celery
-    volumes:
-      - ./backend:/app
 
-  # ── Flower (Celery monitoring) ──────────────────────────────────────────────
+  # ── Flower (Celery monitoring UI) ────────────────────────────────────────────
   flower:
     build:
       context: ./backend
@@ -111,23 +111,41 @@ services:
       --port=5555
       --broker=redis://redis:6379/1
 
-  # ── React Frontend ──────────────────────────────────────────────────────────
+  # ── React Frontend ───────────────────────────────────────────────────────────
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: "http://localhost:8000"
+        VITE_WS_URL: "ws://localhost:8000"
     restart: unless-stopped
     ports:
-      - "5173:5173"
-    environment:
-      VITE_API_URL: "http://localhost:8000"
-      VITE_WS_URL: "ws://localhost:8000"
+      - "5173:80"
     depends_on:
       api:
         condition: service_healthy
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+
+  # ── RPA — Wikipedia scraper ──────────────────────────────────────────────────
+  # No arranca con `docker compose up` normal.
+  # Uso: docker compose --profile rpa run --rm rpa "FastAPI"
+  #      make rpa TERM="Python programming language"
+  rpa:
+    build:
+      context: ./rpa
+      dockerfile: Dockerfile
+    environment:
+      API_BASE_URL: "http://api:8000"
+      RPA_HEADLESS: "true"
+      RPA_SLOW_MO: "0"
+      RPA_TIMEOUT_MS: "15000"
+      RPA_RETRIES: "3"
+    depends_on:
+      api:
+        condition: service_healthy
+    profiles:
+      - rpa
+    command: ["FastAPI"]
 
 volumes:
   postgres_data:

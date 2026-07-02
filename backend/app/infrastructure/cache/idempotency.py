@@ -14,9 +14,9 @@ Why Redis over a DB unique constraint?
   - TTL is native (no cron job needed to clean up old keys)
   - Reduces DB load on high-frequency idempotent endpoints
 """
-import json
-from aioredis import Redis
 from __future__ import annotations
+import json
+from redis.asyncio import Redis
 from app.core.logger import get_logger
 from app.core.constants import IDEMPOTENCY_TTL
 

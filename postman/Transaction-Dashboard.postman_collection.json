@@ -1,0 +1,315 @@
+{
+  "info": {
+    "name": "Transaction Dashboard API",
+    "description": "Full API coverage: idempotent transactions, async processing, WebSocket reference, and OpenAI summarization. Import the companion environment alongside this collection.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "a1b2c3d4-tx-dashboard-001"
+  },
+  "variable": [
+    { "key": "base_url", "value": "{{base_url}}" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/health", "host": ["{{base_url}}"], "path": ["health"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Status is ok', () => pm.expect(pm.response.json().status).to.eql('ok'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "Create Transaction (idempotent)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Idempotency-Key", "value": "{{idempotency_key}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"user_alice\",\n  \"amount\": \"150.00\",\n  \"type\": \"credit\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/transactions/create", "host": ["{{base_url}}"], "path": ["transactions", "create"] }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Generate a fresh idempotency key per Postman run unless one is already set",
+                  "if (!pm.environment.get('idempotency_key')) {",
+                  "  pm.environment.set('idempotency_key', 'postman-' + Date.now());",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "pm.test('Has id', () => pm.expect(json.id).to.be.a('string'));",
+                  "pm.test('Status is pending', () => pm.expect(json.status).to.eql('pending'));",
+                  "pm.environment.set('transaction_id', json.id);",
+                  "console.log('Saved transaction_id:', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Transaction — Replay (idempotent test)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Idempotency-Key", "value": "{{idempotency_key}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"user_alice\",\n  \"amount\": \"150.00\",\n  \"type\": \"credit\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/transactions/create", "host": ["{{base_url}}"], "path": ["transactions", "create"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201 (replay)', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "pm.test('Returns SAME id as original (idempotent)', () => {",
+                  "  pm.expect(json.id).to.eql(pm.environment.get('transaction_id'));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Transaction — Invalid Amount (validation)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"user_test\",\n  \"amount\": \"-50.00\",\n  \"type\": \"credit\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/transactions/create", "host": ["{{base_url}}"], "path": ["transactions", "create"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 422 (validation error)', () => pm.response.to.have.status(422));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Async Process Transaction",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transaction_id\": \"{{transaction_id}}\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/transactions/async-process", "host": ["{{base_url}}"], "path": ["transactions", "async-process"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 202', () => pm.response.to.have.status(202));",
+                  "const json = pm.response.json();",
+                  "pm.test('Has task_id', () => pm.expect(json.task_id).to.be.a('string'));",
+                  "pm.environment.set('task_id', json.task_id);",
+                  "console.log('Task enqueued:', json.task_id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Transactions (paginated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transactions?limit=10&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"],
+              "query": [
+                { "key": "limit", "value": "10" },
+                { "key": "offset", "value": "0" }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('Has items array', () => pm.expect(json.items).to.be.an('array'));",
+                  "pm.test('Has total count', () => pm.expect(json.total).to.be.a('number'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Transaction by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transactions/{{transaction_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["transactions", "{{transaction_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('Returned id matches requested', () => {",
+                  "  pm.expect(json.id).to.eql(pm.environment.get('transaction_id'));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Transaction — Not Found",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transactions/00000000-0000-0000-0000-000000000000",
+              "host": ["{{base_url}}"],
+              "path": ["transactions", "00000000-0000-0000-0000-000000000000"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 404', () => pm.response.to.have.status(404));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Assistant (OpenAI)",
+      "item": [
+        {
+          "name": "Summarize Text",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Python is a high-level, general-purpose programming language. Its design philosophy emphasizes code readability with the use of significant indentation.\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/assistant/summarize", "host": ["{{base_url}}"], "path": ["assistant", "summarize"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('Has summary', () => pm.expect(json.summary).to.be.a('string'));",
+                  "pm.test('Has source field', () => pm.expect(['openai','mock']).to.include(json.source));",
+                  "console.log('Source:', json.source, '| Mock:', json.is_mock, '| Tokens:', json.tokens_used);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Summarize — Validation Error (too short)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"short\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/assistant/summarize", "host": ["{{base_url}}"], "path": ["assistant", "summarize"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 422', () => pm.response.to.have.status(422));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "WebSocket (reference)",
+      "item": [
+        {
+          "name": "README — WS not testable via REST collection",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/docs", "host": ["{{base_url}}"], "path": ["docs"] },
+            "description": "Postman's native WS support requires the desktop app's WebSocket request type, which isn't exportable in this v2.1 collection format. To test the stream:\n\n1. Open Postman Desktop\n2. New → WebSocket Request\n3. URL: ws://localhost:8000/transactions/stream\n4. Connect, then run the 'Create Transaction' request above in a separate tab — you'll see a `transaction.created` event arrive in the WS panel.\n\nAlternatively use `wscat`:\n```\nnpx wscat -c ws://localhost:8000/transactions/stream\n```"
+          }
+        }
+      ]
+    }
+  ]
+}

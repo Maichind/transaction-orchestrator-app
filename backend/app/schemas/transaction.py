@@ -7,10 +7,10 @@ Intentional design:
 - AsyncProcessResponse: 202 Accepted with task_id for polling/WS tracking
 - Separated from ORM models → no SQLAlchemy leaking into the API contract
 """
+from __future__ import annotations
 from uuid import UUID
 from decimal import Decimal
 from datetime import datetime
-from __future__ import annotations
 from pydantic import BaseModel, Field, field_validator
 from app.core.constants import TransactionStatus, TransactionType
 

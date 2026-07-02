@@ -1,6 +1,6 @@
 """Unit tests — idempotency cache layer."""
-import pytest
 from __future__ import annotations
+import pytest
 from unittest.mock import AsyncMock
 from app.infrastructure.cache.idempotency import (
     cache_response,

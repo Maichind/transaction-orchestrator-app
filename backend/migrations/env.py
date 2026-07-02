@@ -1,7 +1,7 @@
 """Alembic async migration environment."""
+from __future__ import annotations
 import asyncio
 from alembic import context
-from __future__ import annotations
 from app.config import get_settings
 from logging.config import fileConfig
 from sqlalchemy.ext.asyncio import create_async_engine

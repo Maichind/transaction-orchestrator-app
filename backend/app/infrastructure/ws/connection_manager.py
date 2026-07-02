@@ -10,10 +10,10 @@ Design note: This is an in-process registry. In a multi-replica deployment,
 replace with Redis Pub/Sub as the broadcast bus (each process subscribes and
 forwards to its local connections). The interface stays identical.
 """
+from __future__ import annotations
 import asyncio
 from typing import Any
 from fastapi import WebSocket
-from __future__ import annotations
 from app.core.logger import get_logger
 from starlette.websockets import WebSocketState
  

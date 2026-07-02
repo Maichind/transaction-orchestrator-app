@@ -4,8 +4,8 @@ Transaction repository — data access for the Transaction model.
 Concrete repos add domain-specific queries on top of BaseRepository.
 Services call repos; repos never call services.
 """
-from uuid import UUID
 from __future__ import annotations
+from uuid import UUID
 from sqlalchemy import select, update
 from app.core.constants import TransactionStatus
 from app.infrastructure.repositories.base import BaseRepository

@@ -10,8 +10,8 @@ Routes are intentionally thin:
 
 No business logic lives here.
 """
-import uuid
 from __future__ import annotations
+import uuid
 from app.core.dependencies import DbSession, RedisDep
 from app.core.constants import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE
 from fastapi import APIRouter, Header, HTTPException, Query, status

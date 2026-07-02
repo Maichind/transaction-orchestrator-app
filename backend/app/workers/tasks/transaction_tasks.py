@@ -12,12 +12,12 @@ Important: Celery tasks are sync by nature. We use asyncio.run() to bridge
 into the async service/repo layer. In high-throughput systems, consider
 gevent/eventlet workers or a separate async task runner (e.g. arq).
 """
+from __future__ import annotations
 import uuid
 import time
 import random
 import asyncio
 from celery import Task
-from __future__ import annotations
 from celery.utils.log import get_task_logger
 from app.core.constants import (
     TASK_MAX_RETRIES,

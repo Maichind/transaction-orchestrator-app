@@ -1,6 +1,6 @@
 """Unit tests — AIService with mocked OpenAI integration."""
-import pytest
 from __future__ import annotations
+import pytest
 from unittest.mock import AsyncMock, patch
 from app.infrastructure.integrations.openai_client import AIResponse
 

@@ -8,8 +8,8 @@ Configuration rationale:
 - worker_prefetch_multiplier=1: fair dispatch (long tasks don't starve queue)
 - result_expires: auto-cleanup of result backend keys
 """
-from celery import Celery
 from __future__ import annotations
+from celery import Celery
 from app.config import get_settings
 
 

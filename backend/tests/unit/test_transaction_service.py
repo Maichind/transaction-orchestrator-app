@@ -1,8 +1,8 @@
 """Unit tests — TransactionService business logic."""
+from __future__ import annotations
 import uuid
 import pytest
 from decimal import Decimal
-from __future__ import annotations
 from app.core.exceptions import NotFoundError
 from unittest.mock import AsyncMock, MagicMock, patch
 from app.schemas.transaction import TransactionCreate

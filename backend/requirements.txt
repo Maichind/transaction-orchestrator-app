@@ -14,12 +14,14 @@ alembic==1.14.0
 
 # ── Cache / broker ──────────────────────────────────────────────────────────────
 redis==5.2.1              # sync redis (Celery broker)
-aioredis==2.0.1           # async redis (idempotency, app layer)
 
 # ── Task queue ──────────────────────────────────────────────────────────────────
 celery==5.4.0
 celery[redis]==5.4.0
 flower==2.0.1             # Celery monitoring UI
+
+# ── Browser automation / RPA ──────────────────────────────────────────────────
+playwright>=1.53.0
 
 # ── OpenAI ──────────────────────────────────────────────────────────────────────
 openai==1.57.2
@@ -34,6 +36,7 @@ pytest-asyncio==0.24.0
 pytest-cov==6.0.0
 httpx==0.28.1             # TestClient async
 anyio==4.7.0
+aiosqlite==0.20.0          # in-memory SQLite for fast test DB
 
 # ── Dev / lint ──────────────────────────────────────────────────────────────────
 ruff==0.8.4

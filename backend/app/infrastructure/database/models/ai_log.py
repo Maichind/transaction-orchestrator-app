@@ -5,8 +5,8 @@ Persisting both request and response serves dual purposes:
 1. Cost tracking (tokens_used accumulates per day/user)
 2. Debugging / replay (exact prompt that produced a given summary)
 """
-import uuid
 from __future__ import annotations
+import uuid
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import Boolean, Integer, String, Text

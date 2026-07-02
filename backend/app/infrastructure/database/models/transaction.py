@@ -5,9 +5,9 @@ Note: This is an ORM model (infrastructure concern), not a domain entity.
 The separation allows us to evolve the DB schema independently of business
 logic and makes the persistence layer swappable.
 """
+from __future__ import annotations
 import uuid
 from decimal import Decimal
-from __future__ import annotations
 from sqlalchemy import Numeric, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column

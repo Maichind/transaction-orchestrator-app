@@ -11,8 +11,8 @@ Lifecycle:
 Kept in api/websocket/ (separate from HTTP routes) because WS has a
 fundamentally different lifecycle and error model than HTTP.
 """
-import asyncio
 from __future__ import annotations
+import asyncio
 from app.core.logger import get_logger
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from app.infrastructure.ws.connection_manager import ws_manager

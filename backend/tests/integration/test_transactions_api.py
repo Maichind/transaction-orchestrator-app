@@ -1,7 +1,7 @@
 """Integration tests — Transaction HTTP endpoints."""
+from __future__ import annotations
 import pytest
 from httpx import AsyncClient
-from __future__ import annotations
 
 
 @pytest.mark.asyncio

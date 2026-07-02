@@ -71,7 +71,7 @@ export function Dashboard() {
           lg:w-[380px] xl:w-[420px]
           h-[320px] lg:h-auto
           border-t lg:border-t-0 lg:border-l border-border/60
-          flex flex-col overflow-hidden
+          flex flex-col px-6 py-5 overflow-hidden
           shrink-0
         ">
           <LiveEventFeed />

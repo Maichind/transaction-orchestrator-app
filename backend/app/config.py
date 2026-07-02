@@ -7,8 +7,8 @@ Why pydantic-settings over python-decouple or os.environ?
 - .env file support out of the box
 - Cached with @lru_cache so the file is parsed once per process
 """
-from functools import lru_cache
 from __future__ import annotations
+from functools import lru_cache
 from pydantic import Field, PostgresDsn, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 

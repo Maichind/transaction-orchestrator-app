@@ -1,13 +1,13 @@
 """
-Async Redis client using aioredis with connection pooling.
+Async Redis client.
  
 A single pool is shared across the process lifetime. We initialize it
 lazily on first use and expose it via get_redis_connection() so the
 dependency layer can inject it without knowing the pool internals.
 """
-import aioredis
-from aioredis import Redis
 from __future__ import annotations
+import redis.asyncio as redis
+from redis.asyncio import Redis
 from app.config import get_settings
 from app.core.logger import get_logger
 
@@ -19,7 +19,7 @@ async def init_redis() -> None:
     """Create the connection pool. Called once during app lifespan startup."""
     global _redis_pool
     settings = get_settings()
-    _redis_pool = await aioredis.from_url(
+    _redis_pool = redis.from_url(
         settings.redis_url,
         encoding="utf-8",
         decode_responses=True,
@@ -33,7 +33,7 @@ async def close_redis() -> None:
     """Close the pool gracefully. Called during app lifespan shutdown."""
     global _redis_pool
     if _redis_pool:
-        await _redis_pool.close()
+        await _redis_pool.aclose()
         _redis_pool = None
         logger.info("redis.disconnected")
 

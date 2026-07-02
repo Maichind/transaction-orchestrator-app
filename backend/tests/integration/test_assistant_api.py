@@ -1,7 +1,7 @@
 """Integration tests — Assistant endpoint."""
+from __future__ import annotations
 import pytest
 from httpx import AsyncClient
-from __future__ import annotations
 from unittest.mock import AsyncMock, patch
 from app.infrastructure.integrations.openai_client import AIResponse
 

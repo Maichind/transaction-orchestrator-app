@@ -1,16 +1,25 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Button } from '../atoms/button'
 import { Spinner } from '../atoms/spinner'
+import { useAppStore } from '@/store/useAppStore'
 import { useTransactionList } from '@/hooks/useTransaction'
 import { TransactionCard } from '@/components/molecules/TransactionCard'
-import { useAppStore, selectLiveTransactions } from '@/store/useAppStore'
 
 const PAGE_SIZE = 10
 
 export function TransactionList() {
   const [offset, setOffset] = useState(0)
   const { data, isLoading, isError, refetch, isFetching } = useTransactionList(PAGE_SIZE, offset)
-  const liveTransactions = useAppStore(selectLiveTransactions)
+  //const liveTransactions = useAppStore(selectLiveTransactions)
+  const liveTransactionsMap = useAppStore((s) => s.liveTransactions)
+
+  const liveTransactions = useMemo(
+    () =>
+      Object.values(liveTransactionsMap).sort(
+        (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      ),
+    [liveTransactionsMap]
+  )
 
   // Merge: live WS transactions on top, server list below (deduplicated by id)
   const serverIds = new Set(data?.items.map((t) => t.id) ?? [])

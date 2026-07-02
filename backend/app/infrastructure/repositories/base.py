@@ -6,9 +6,9 @@ Why a generic base?
 - Type-safe via Generic[T] — IDEs autocomplete correctly
 - Easy to extend: concrete repos override only what differs
 """
+from __future__ import annotations
 from uuid import UUID
 from sqlalchemy import select
-from __future__ import annotations
 from typing import Generic, TypeVar
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.infrastructure.database.models.base import Base

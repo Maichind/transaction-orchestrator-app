@@ -8,9 +8,9 @@ HOW they are delivered (WS today, Kafka tomorrow — same interface).
  
 Pattern: thin async functions, no state, injected manager for testability.
 """
+from __future__ import annotations
 from uuid import UUID
 from typing import Any
-from __future__ import annotations
 from app.core.logger import get_logger
 from datetime import datetime, timezone
 from app.infrastructure.ws.connection_manager import ws_manager

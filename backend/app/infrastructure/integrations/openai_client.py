@@ -7,8 +7,8 @@ Design decisions:
 - Cost guard: logs token usage on every real call
 - The service layer depends on the return type, not on this module's internals
 """
-from dataclasses import dataclass
 from __future__ import annotations
+from dataclasses import dataclass
 from app.config import get_settings
 from app.core.logger import get_logger
 from app.core.exceptions import ExternalServiceError

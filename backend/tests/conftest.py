@@ -6,11 +6,11 @@ Strategy:
 - fakeredis for Redis mocking (no network required)
 - Override FastAPI dependencies so tests use isolated infrastructure
 """
+from __future__ import annotations
 import pytest
 import pytest_asyncio
 from typing import Any
 from app.main import create_app
-from __future__ import annotations
 from unittest.mock import AsyncMock
 from collections.abc import AsyncGenerator
 from httpx import ASGITransport, AsyncClient
